@@ -1,0 +1,109 @@
+|---------------------------------------------------------------------------------|
+|=                             /     Igual a                                      |
+|---------------------------------------------------------------------------------|
+|>                             /     Mayor que                                    |
+|---------------------------------------------------------------------------------|
+|>=                            /     Mayor o igual a                              |
+|---------------------------------------------------------------------------------|
+|<                             /     Menor que                                    |
+|---------------------------------------------------------------------------------|
+|<=                            /     Manor o igual a                              |
+|---------------------------------------------------------------------------------|
+|<>,!=,^                       /     No igual o distinto a                        |
+|---------------------------------------------------------------------------------|
+|BETWEEN...AND...              /     Entre dos valores                            |
+|---------------------------------------------------------------------------------|
+|IN(lista)                     /     Valores que estan en la lista                |
+|---------------------------------------------------------------------------------|
+|LIKE                          / Valores que cumplan con una condición textual    |
+|                                %: indica una serie cualquiera de caracteres     |
+|                                _: INdica un caracter cualquiera                 |
+|---------------------------------------------------------------------------------|
+|IS NULL                        / Es un valor NULO                                |
+|---------------------------------------------------------------------------------|
+|                                                                                 |
+|                                                                                 |
+|                                                                                 |
+|---------------------------------------------------------------------------------|
+|--LIKE--                                                                         |
+|                                                                                 |
+|SELECT last_name                                                                 |
+|FROM employees                                                                   |
+|WHERE last_name LIKE 'A%';                                                       |
+|                                                                                 |
+|---------------------------------------------------------------------------------|
+
+SELECT last_name
+FROM employees
+WHERE last_name LIKE '_e%';
+
+---------------------------------------------------------------------------------
+
+SELECT last_name
+FROM employees
+WHERE UPPER(last_name) LIKE UPPER('%b%');
+
+---------------------------------------------------------------------------------
+
+--IS NULL--
+
+---------------------------------------------------------------------------------
+
+SELECT employee_id,
+job_id,
+last_name,
+department_id,
+commission_PCT
+FROM employees
+WHERE commission_PCT IS NULL;
+
+---------------------------------------------------------------------------------
+
+--IS NOT NULL--
+
+---------------------------------------------------------------------------------
+
+SELECT employee_id,
+job_id,
+last_name,
+department_id,
+commission_PCT
+FROM employees
+WHERE commission_PCT IS NOT NULL;
+
+---------------------------------------------------------------------------------
+
+SELECT employee_id,
+job_id,
+last_name,
+department_id,
+hire_date
+FROM employees
+WHERE hire_date LIKE '___03%';
+
+
+|---------------------------------------------------------------------------------------|
+|AND                             /     Retorna verdaderp si todos los componentes       |
+|                                      de la condicion son verdaderas.                  |
+|---------------------------------------------------------------------------------------|
+|OR                             /      Retorna verdadero si alguna de las expresiones   |
+|                                      de la condicion son verdaderas                   |
+|---------------------------------------------------------------------------------------|
+|NOT                            /      Retorna verdadero si la condicion es falsa       |
+|---------------------------------------------------------------------------------------|
+
+
+--Sustitucion HAHAHAHA--
+
+SELECT employee_id,
+job_id,
+last_name,
+department_id, 
+salary
+FROM employees
+WHERE department_id = 90 and salary > &SUELDO;
+
+--Create table--
+
+CREATE TABLE ola_copia
+AS SELECT* FROM employees;

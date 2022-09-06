@@ -1,0 +1,81 @@
+SELECT first_name||' '|| last_name,
+salary "Salario", 
+salary * 0.023
+FROM employees;
+
+----------------------------------------------------------------
+
+SELECT first_name||' '|| last_name,
+salary "Salario", 
+ROUND(salary * 0.023) "Redondeo",
+TRUNC(salary * 0.023) "Truncado"
+FROM employees;
+
+----------------------------------------------------------------
+
+SELECT first_name||' '|| last_name,
+salary "Salario", 
+ROUND(salary * 0.023) "Redondeo",
+TRUNC(salary * 0.023) "Truncado"
+FROM employees
+WHERE MOD(salary, 2)= 0;
+
+                    FECHA DE CREACION
+----------------------------------------------------------------
+
+SELECT SYSDATE
+FROM dual;
+                        EDAD
+----------------------------------------------------------------
+
+SELECT MONTHS_BETWEEN(SYSDATE,'23/09/2003')/12
+FROM dual;
+
+----------------------------------------------------------------
+
+SELECT TRUNC(MONTHS_BETWEEN(SYSDATE, '23/09/2003')/12)
+FROM dual;
+
+                      CALCULO DE DIA
+----------------------------------------------------------------
+
+SELECT NEXT_DAY(SYSDATE, 'DOMINGO')
+FROM dual;
+
+SELECT NEXT_DAY(SYSDATE, 7)
+FROM dual;
+
+               FECHA DE UN MES EN ESPECIFICO
+----------------------------------------------------------------
+
+SELECT ADD_MONTHS(SYSDATE, 2)
+FROM dual;
+
+                  ULTIMO DIA DE LA FECHA
+----------------------------------------------------------------
+
+SELECT LAST_DAY(SYSDATE)
+FROM dual
+
+            MOSTRAR AÑOS TRABAJADOS DE MANERA IMPAR 
+----------------------------------------------------------------
+
+SELECT last_name,
+ROUND(MONTHS_BETWEEN(SYSDATE, hire_date)/12) "Años trabajados"
+FROM employees
+WHERE MOD(ROUND(MONTHS_BETWEEN(SYSDATE, hire_date)/12),2)=1;
+
+                DIAS PARA EL 18 HAHAHAHAH
+----------------------------------------------------------------
+
+SELECT ROUND(TO_DATE('18/09/22', 'dd/mm/yy') - SYSDATE)
+FROM dual;
+
+                  EXTRAER INFORMACION
+----------------------------------------------------------------
+
+SELECT
+EXTRACT(DAY FROM hire_date),
+EXTRACT(MONTH FROM hire_date),
+EXTRACT(YEAR FROM hire_date)
+FROM employees;

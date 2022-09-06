@@ -1,0 +1,78 @@
+SELECT first_name, last_name, hire_date
+FROM employees
+WHERE department_id = 50;
+
+--ASCENDENTE  ASC
+
+SELECT first_name, last_name, hire_date
+FROM employees
+WHERE department_id = 50
+ORDER BY hire_date ASC;
+
+--DESCENDENTE DESC
+
+SELECT DISTINCT department_id
+FROM employees
+ORDER BY department_id DESC;
+
+--SALARY
+
+SELECT first_name,
+last_name,
+hire_date,
+salary
+FROM employees
+WHERE department_id = 50
+ORDER BY hire_date ASC;
+
+--COMMISSION
+
+SELECT first_name,
+last_name,
+hire_date,
+salary,
+(salary + 300)* 12,
+commission_PCT 
+FROM employees
+WHERE department_id = 50
+ORDER BY hire_date ASC;
+
+--SALARY + COMMISSION
+
+SELECT first_name,
+last_name,
+hire_date,
+salary,
+(salary + 300)*12,
+commission_PCT,
+salary + commission_PCT
+FROM employees
+WHERE department_id = 50
+ORDER BY hire_date ASC;
+
+
+
+SELECT first_name "Nombre",
+last_name "Apellido",
+hire_date "Fecha de contrato",
+salary "Salario",
+salary + 300 "Salario mas Bono",
+(salary + 300)*12 "Salario anual",
+commission_PCT "Comision",
+salary + commission_PCT "Salario mas Comision"
+FROM employees
+WHERE department_id = 50
+ORDER BY hire_date ASC;
+
+
+
+
+--FRASE INSANA
+
+SELECT 'El Empleado: '|| first_name || ' ' || last_name  ||' Trabaja en el departamento '|| department_id informe
+FROM employees
+ORDER BY department_id ASC;
+
+
+SELECT DISTINCT nombre_cli
+FROM cliente;

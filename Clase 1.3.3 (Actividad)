@@ -1,0 +1,47 @@
+SELECT INITCAP(APPATERNO_CLI ||' '|| APMATERNO_CLI ||' '||PNOMBRE_CLI) "Nombre Completo"
+FROM cliente;
+
+---------------------------------------------------------------------------------------------
+
+SELECT numrun_cli "RUN",
+appaterno_cli "APELLIDO PATERNO",
+apmaterno_cli "APELLIDO MATERNO",
+pnombre_cli "NOMBRE",
+LOWER(SUBSTR(appaterno_cli, 1,2)||SUBSTR(apmaterno_cli,-2,2)||SUBSTR(numrun_cli, 1, 4)||LENGTH(pnombre_cli)) "Clave"
+FROM cliente;
+
+---------------------------------------------------------------------------------------------
+
+SELECT RPAD(appaterno_emp,20, '-')||RPAD(apmaterno_emp,20, '-')||RPAD(pnombre_emp,20, '-')
+FROM empleado;
+
+---------------------------------------------------------------------------------------------
+
+SELECT sueldo_base,
+ROUND(sueldo_base * 0.128,2),
+ROUND(sueldo_base * 0.128),
+TRUNC(sueldo_base * 0.128)
+FROM empleado;
+
+---------------------------------------------------------------------------------------------
+
+SELECT numrun_emp,
+pnombre_emp||' '||appaterno_emp||' '||apmaterno_emp "Nombre completo",
+fecha_nac
+FROM empleado
+WHERE MOD(EXTRACT(MONTH FROM fecha_nac),2)=0;
+
+---------------------------------------------------------------------------------------------
+
+SELECT id_arriendo,
+nro_patente,
+fecha_devolucion,
+fecha_ini_arriendo,
+fecha_devolucion - fecha_ini_arriendo
+FROM arriendo_camion;
+
+---------------------------------------------------------------------------------------------
+
+SELECT numrun_emp,
+TRUNC(MONTHS_BETWEEN(SYSDATE, fecha_nac)/12)
+FROM empleado;

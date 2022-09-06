@@ -1,0 +1,68 @@
+METODO FORMATO FECHA RECOMENDADO
+-----------------------------------------------------------------------
+SELECT
+    id_arriendo,
+    nro_patente,
+    fecha_ini_arriendo
+FROM arriendo_camion
+WHERE fecha_ini_arriendo < TO_DATE('31-12-2021','DD-MM-YY')
+ORDER BY fecha_ini_arriendo ASC;
+-----------------------------------------------------------------------
+
+SELECT
+    id_arriendo,
+    nro_patente ,
+    TO_CHAR(fecha_ini_arriendo, '"Desde "DD Month YYYY ')||
+    TO_CHAR(fecha_devolucion, '"Hasta "DD Month YYYY') "Periodo arriendo"
+FROM arriendo_camion
+
+-----------------------------------------------------------------------
+SELECT
+    id_arriendo,
+    nro_patente ,
+    TO_CHAR(fecha_ini_arriendo, '"Desde "DD ')||
+    TRIM(TO_CHAR(fecha_ini_arriendo, 'Month '))||
+    TO_CHAR(fecha_ini_arriendo, ' YYYY ')||
+    TO_CHAR(fecha_devolucion, '"Hasta " DD ')||
+    TRIM(TO_CHAR(fecha_devolucion, 'Month '))||
+    TO_CHAR(fecha_ini_arriendo, ' YYYY ') "Periodo arriendo"
+FROM arriendo_camion
+
+-----------------------------------------------------------------------
+SELECT
+    numrun_emp||'-'||dvrun_emp RUT,
+    TO_CHAR(sueldo_base, '$9G999G999') "SUELDO BASE HAHAHAH"
+FROM empleado
+ORDER BY sueldo_base DESC;
+-----------------------------------------------------------------------
+SELECT
+    numrun_emp||'-'||dvrun_emp RUT,
+    NVL(TO_CHAR(fono_fijo_emp), 'SIN REGISTRO') "FONO FIJO"
+FROM empleado;
+
+-----------------------------------------------------------------------
+
+SELECT
+    id_arriendo,
+    nro_patente
+FROM arriendo_camion
+WHERE fecha_ini_arriendo = TO_DATE('&FECHA_CONSULTA');
+
+SELECT
+    numrun_emp||'-'||dvrun_emp RUT,
+    CASE
+        WHEN UPPER(sexo) = 'F' THEN
+        'FEMENINO'
+        WHEN UPPER(sexo) = 'M' THEN
+        'MASCULINO'
+    ELSE
+        'Se identifica como helicoptero Boeing AH-64 Apache'
+    END GENERO
+FROM empleado;
+
+-----------------------------------------------------------------------
+
+SELECT
+    numrun_emp||'-'||dvrun_emp RUT,
+    DECODE(UPPER(sexo), 'F', 'FEMENINO','M', 'MASCULINO')
+FROM empleado;

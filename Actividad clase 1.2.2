@@ -1,0 +1,96 @@
+SELECT nombre_cli, appaterno_cli
+FROM cliente
+WHERE nombre_cli LIKE '&pri_letra%'
+ORDER BY appaterno_cli ASC;
+
+
+SELECT nombre_cli, appaterno_cli,&&columna
+FROM cliente
+WHERE nombre_cli LIKE '&pri_letra%'
+ORDER BY &columna ASC;
+
+undefine columna;
+
+
+SELECT direccion_propiedad,
+superficie
+FROM propiedad
+ORDER BY superficie DESC;
+
+
+
+SELECT nombre_cli ||' '|| appaterno_cli ||' '|| apmaterno_cli "Nombre completo"
+FROM cliente
+ORDER BY appaterno_cli ASC;
+
+
+
+SELECT direccion_propiedad,
+valor_arriendo,
+valor_arriendo * 0.1 "10% valor arriendo"
+FROM propiedad
+
+
+
+SELECT DISTINCT nombre_cli
+FROM cliente
+ORDER BY nombre_cli ASC;
+              
+
+SELECT direccion_propiedad,
+superficie
+FROM propiedad
+WHERE superficie > 100;
+
+
+SELECT direccion_propiedad,
+valor_arriendo,
+valor_arriendo* 0.1 "10% valor del arriendo"
+FROM propiedad
+WHERE valor_arriendo* 0.1 > 80000;
+
+
+SELECT direccion_propiedad,
+valor_arriendo
+FROM propiedad
+WHERE valor_arriendo BETWEEN 306000 AND 500000;
+
+
+SELECT numrut_cli "Num RUT",
+id_estcivil "Estado civil"
+FROM cliente
+WHERE id_estcivil IN (1,3,5);
+
+
+SELECT numrut_cli,
+appaterno_cli||' '||apmaterno_cli||' '||nombre_cli
+FROM cliente
+WHERE appaterno_cli LIKE 'M%';
+
+
+
+SELECT numrut_cli,
+appaterno_cli||' '||apmaterno_cli||' '||nombre_cli
+FROM cliente
+WHERE appaterno_cli LIKE '%A';
+
+
+SELECT numrut_cli,
+appaterno_cli||' '||apmaterno_cli||' '||nombre_cli
+FROM cliente
+WHERE appaterno_cli LIKE '_E%'
+ORDER BY appaterno_cli;
+
+
+SELECT numrut_cli,
+appaterno_cli||' '||apmaterno_cli||' '||nombre_cli
+FROM cliente
+WHERE celular_cli IS NULL
+AND apmaterno_cli LIKE 'V%';
+
+
+SELECT numrut_cli,
+appaterno_cli,
+id_estcivil
+FROM cliente
+WHERE id_estcivil NOT IN (3,4);

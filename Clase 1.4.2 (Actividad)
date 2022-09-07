@@ -1,0 +1,67 @@
+SELECT 
+    nombre "Nombre del Curso",
+    hrtotal||' hr.' "Horas Totales",
+    CASE
+        WHEN areaid = 100 THEN 
+        TRIM(TO_CHAR(costo - (costo * 0.1),'$999G999G999'))
+        ELSE 
+        TRIM(TO_CHAR(costo,'$999G999G999'))
+    END "Costo"
+FROM curso
+WHERE areaid IN (100, 600, 700, 800) AND nivelid = 100
+ORDER BY areaid ASC;
+
+/*El instituto SABELOTODO por algunos problemas técnicos no había podido crear las 
+cuentas de correo de sus alumnos, por lo que se pide configurar el correo y 
+contraseña de los alumnos. Se debe considerar que el correo es: 
+las primeras tres letras de su nombre + apellido paterno + año de nacimiento + 
+@sabelotodo.cl. para la contraseña se debe considerar: largo apellido 
+paterno + largo apellido materno + últimas 3 letras del nombre, si el largo de la 
+contraseña es inferior a 8 se debe rellenar con 0.
+La información se debe visualizar en forma ascendente por el apellido paterno 
+para aquellos alumnos que hayan nacido antes de 1980, en el formato que se muestra.*/
+
+SELECT 
+    UPPER(nombre||' '||apaterno||' '||amaterno) "Nombre Completo",
+    LOWER(SUBSTR(nombre, 0, 3)|| apaterno|| TO_CHAR(fechanacimiento,'YYYY') ||'@sabelotodo.cl') AS "Correo Alumno",
+    RPAD(LENGTH(apaterno)||LENGTH(amaterno)||SUBSTR(nombre,-3,3), 8,'0') AS "Contrasena"
+FROM participante
+WHERE (TO_CHAR(fechanacimiento,'YYYY'))< 1980
+ORDER BY apaterno ASC;
+
+
+SELECT 
+    UPPER(nombre||' '||apaterno||' '||SUBSTR(amaterno,-1,1)||'.') "Nombre Completo",
+    NVL(TO_CHAR(telefono), 'No tiene celular') "Celular",
+    TRUNC(MONTHS_BETWEEN(SYSDATE, fechanacimiento)/12) AS "Edad",
+    CASE
+        WHEN EXTRACT(MONTH FROM fechanacimiento) BETWEEN 1 AND 4
+        THEN 'PRIMERA CELEBRACION'
+        WHEN EXTRACT(MONTH FROM fechanacimiento) BETWEEN 5 AND 8
+        THEN 'SEGUNDA CELEBRACION'
+        ELSE
+        'TERCERA CELEBRACION'
+    END
+FROM participante
+WHERE TRUNC(MONTHS_BETWEEN(SYSDATE, fechanacimiento)/12) < 40 OR (genero = 'F' AND empresaid = 200)
+ORDER BY EXTRACT(MONTH FROM fechanacimiento) ASC;
+
+--138	Amadeus
+--108	Word
+--129	Windows 8
+
+SELECT
+    CASE 
+        WHEN cursoid = 138 
+        THEN 'Amadeus'
+        WHEN cursoid = 108 
+        THEN 'Word'
+        WHEN cursoid = 129 
+        THEN 'Windows 8'
+    END "Curso",
+    SUBSTR(periodoid,0,4) "AÑO",
+    SUBSTR(periodoid,-1,1) "SEMESTRE",
+    SUBSTR(versionid, -1, 1) "VERSION"
+FROM oferta_curso
+WHERE cursoid IN (138, 108, 129)
+ORDER BY versionid, cursoid ASC;

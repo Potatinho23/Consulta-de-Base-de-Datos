@@ -30,7 +30,7 @@ valor_arriendo,
 valor_arriendo * 0.1 "10% valor arriendo"
 FROM propiedad
 
-
+--ELIMINAR REPETIDOS--
 
 SELECT DISTINCT nombre_cli
 FROM cliente

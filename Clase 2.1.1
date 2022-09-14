@@ -1,0 +1,55 @@
+SELECT MAX(salary),--Salario maximo
+MIN(salary),--Salario minimo
+AVG(salary)--Promedio de salario
+from employees;
+
+SELECT 
+    MAX(salary),
+    COUNT(*),--COUNT->contador de instancias de la tabla
+    COUNT(salary),
+    COUNT(commission_pct),
+    AVG(commission_pct),
+    AVG(NVL(commission_pct,0))--NVL->reemplaza los nulos
+FROM employees;
+--WHERE salary >15000;
+
+
+SELECT
+    COUNT(DISTINCT(department_id))--Los departamentos distintos que tienen empleados asociados
+FROM employees;
+
+
+SELECT
+    AVG(salary),
+    department_id
+FROM employees
+GROUP BY department_id;
+    
+
+SELECT 'En el departamento '||NVL(TO_CHAR(department_id),'depto_kim')||' trabajan '||COUNT(*)|| ' personas'
+FROM employees
+GROUP BY department_id;
+
+
+SELECT 
+    ROUND(AVG(salary)),
+    department_id,
+    job_id
+FROM employees
+GROUP BY department_id, job_id
+ORDER BY department_id, job_id;
+
+
+SELECT  department_id,  MAX(salary)
+FROM employees
+HAVING MAX(salary) > 8000
+GROUP BY department_id;
+
+--JAMAS SE USA EL WHERE EN UNA FUNCION DE GRUPO-> SE REEMPLAZA POR HAVING 
+
+
+SELECT  department_id,  MAX(salary)
+FROM employees
+WHERE salary < 9000
+HAVING MAX(salary) > 8000
+GROUP BY department_id;

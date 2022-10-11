@@ -1,0 +1,154 @@
+CREATE TABLE emp_sal_12000
+AS SELECT employee_id, first_name, last_name, 
+                    salary, department_id
+     FROM employees
+    WHERE salary > 12000;
+
+CREATE TABLE emp_depto_90
+AS SELECT employee_id, first_name, last_name, 
+                   salary, department_id 
+      FROM employees
+    WHERE department_id = 90;
+
+
+CREATE TABLE emp_depto_100
+AS SELECT employee_id, first_name, last_name, 
+                   salary, department_id 
+      FROM employees
+    WHERE department_id = 100;
+
+
+
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+UNION 
+SELECT employee_id, salary, department_id
+FROM emp_depto_90;
+
+
+
+SELECT employee_id, first_name || ' ' || last_name nombre_empleado
+FROM emp_sal_12000
+UNION 
+SELECT employee_id, first_name || '' || last_name nombre
+FROM emp_depto_90
+UNION
+SELECT employee_id, first_name || ' ' || last_name empleado
+FROM emp_depto_100
+ORDER BY 1;
+
+
+
+
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+UNION ALL
+SELECT employee_id, salary, department_id
+FROM emp_depto_90;
+
+
+
+
+
+
+
+
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+UNION ALL
+SELECT employee_id, salary, department_id
+FROM emp_depto_90
+UNION ALL
+SELECT employee_id, salary, department_id
+FROM emp_depto_100;
+
+
+
+
+
+--Empleados que ganan mas de 12000 en el departamento 90
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+INTERSECT
+SELECT employee_id, salary, department_id
+FROM emp_depto_90;
+
+--Empleado que gane mas de 12000 en el departamento 90 y el 100 a la misma vez
+
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+INTERSECT
+SELECT employee_id, salary, department_id
+FROM emp_depto_90
+INTERSECT
+SELECT employee_id, salary, department_id
+FROM emp_depto_100;
+
+
+--empleados que ganen mas de 12000 y que no trabajen en el departamento 90
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+MINUS
+SELECT employee_id, salary, department_id
+FROM emp_depto_90;
+
+--empleados del departamento 100 que no ganen mas de 12000 
+SELECT employee_id, salary, department_id
+FROM emp_depto_100
+MINUS
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000;
+
+--empleados que ganen mas de 12000 y que no trabajen en el departamento 90 y el 100
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+MINUS
+SELECT employee_id, salary, department_id
+FROM emp_depto_90
+MINUS
+SELECT employee_id, salary, department_id
+FROM emp_depto_100;
+
+
+
+--Empleados que ganen mas de 10000, que tengan un cambio de trabajo y que ganen el maximo
+
+SELECT employee_id
+ FROM employees
+where salary > 10000
+MINUS
+SELECT employee_id
+ FROM job_history
+INTERSECT 
+SELECT employee_id
+ FROM employees
+ WHERE salary >= (SELECT MAX(salary)
+                  FROM employees);
+                  
+--Empleados que ganen mas de 10000 dolares, que no se han cambiado de trabajo y que ganen el maximo
+
+SELECT employee_id
+ FROM employees
+where salary > 10000
+MINUS
+(SELECT employee_id
+  FROM job_history
+ UNION
+ SELECT employee_id
+  FROM employees
+ WHERE salary >= (SELECT MAX(salary)
+                                    FROM employees));
+
+
+
+--empleados que ganen mas de 12000, que trabajen en el departamento 90 y el 100
+
+
+SELECT employee_id, salary, department_id
+FROM emp_sal_12000
+UNION 
+(SELECT employee_id, salary, department_id
+FROM emp_depto_90
+INTERSECT
+SELECT employee_id, salary, department_id
+FROM emp_depto_100);

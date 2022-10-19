@@ -1,0 +1,38 @@
+SELECT r.nombre||' '||r.apaterno||' '||r.amaterno AS "Nombre completo",
+TO_CHAR(r.valorhr,'$999g999g999')AS "Valor Hora",
+CASE oc.versionid WHEN
+    'V001' THEN 'PRIMERA'
+    WHEN
+    'V002' THEN 'SEGUNDA'
+    WHEN
+    'V003' THEN 'TERCERA'
+    END "Version",
+c.nombre||', '||n.descripcion AS "Curso",
+TO_CHAR(c.costo,'$999g999g999')"Costo"
+FROM relator r JOIN oferta_curso oc 
+    ON(r.relatorid = oc.relatorid)
+    JOIN curso c
+    ON(oc.cursoid = c.cursoid)
+    JOIN nivel n
+    ON(c.nivelid = n.nivelid)
+ORDER BY 1,4,2 ASC;
+
+
+
+
+SELECT 
+    c.nombre AS "Nombre curso",
+    COUNT(i.inscripcionid) AS "Cantidad Participantes",
+    TO_CHAR(SUM(i.costo),'$999g999g999') AS "Costo"
+FROM curso c JOIN oferta_curso oc
+    ON(c.cursoid = oc.cursoid)
+    JOIN inscripcion i
+    ON(oc.cursoid = i.cursoid AND oc.periodoid = i.periodoid AND oc.versionid = i.versionid)
+GROUP BY c.nombre
+HAVING COUNT(i.inscripcionid) >
+    (SELECT COUNT(i.inscripcionid)/COUNT(DISTINCT(c2.nombre))
+    FROM curso c2 JOIN oferta_curso oc2
+    ON(c2.cursoid = oc2.cursoid)
+    JOIN inscripcion i2
+    ON(oc2.cursoid = i2.cursoid AND oc2.periodoid = i2.periodoid AND oc2.versionid = i2.versionid))
+ORDER BY 2 DESC;

@@ -38,8 +38,10 @@ HAVING COUNT(i.inscripcionid) >
 ORDER BY 2 DESC;
 
 
+-------------------------------------------------------------------------------------FORMA B--------------------------------------------------------------------
+CASO 1
 
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 SELECT c.nombre||', '||n.descripcion AS "Curso",
 TRUNC(i.periodoid /10) AS "Año Curso",
 SUBSTR(i.periodoid,5) AS "Semestre Curso",
@@ -66,3 +68,68 @@ FROM participante p JOIN inscripcion i
     JOIN nivel n
     ON(c.nivelid = n.nivelid)
 ORDER BY c.cursoid, i.periodoid, oc.versionid;
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CASO 2
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+SELECT r.nombre||' '||r.apaterno||' '||r.amaterno AS "Nombre completo",
+TO_CHAR(r.valorhr, '$999G999G999')AS "Valor Hora",
+c.nombre AS "Curso",
+COUNT(oc.relatorid)AS "Cantidad"
+FROM relator r JOIN oferta_curso oc
+    ON(r.relatorid = oc.relatorid)
+    JOIN curso c
+    ON(oc.cursoid = c.cursoid)
+WHERE r.valorhr <
+            (SELECT
+                AVG(r2.valorhr)
+                FROM relator r2 JOIN oferta_curso oc2
+                    ON(r2.relatorid = oc2.relatorid))
+HAVING COUNT(oc.relatorid)>1
+GROUP BY r.nombre, r.apaterno, r.amaterno, r.valorhr, c.nombre
+ORDER BY 4 DESC,2,3 ASC;
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+CASO 3
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+DELETE hist_curso_imp_inst;
+
+INSERT INTO hist_curso_imp_inst
+(SELECT 
+    c.cursoid AS "Cod Curso",
+    c.nombre AS "Nombre Curso",
+    n.descripcion AS "Nivel",
+    c.costo AS "Costo",
+    COUNT(i.participanteid)AS "Cantidad"
+    FROM inscripcion i RIGHT JOIN oferta_curso oc
+    ON(i.periodoid = oc.periodoid AND i.cursoid = oc.cursoid AND i.versionid = oc.versionid)
+    RIGHT JOIN curso c
+    ON(oc.cursoid = c.cursoid)
+    RIGHT JOIN nivel n
+    ON(c.nivelid = n.nivelid)
+GROUP BY c.cursoid, c.nombre, n.descripcion, c.costo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

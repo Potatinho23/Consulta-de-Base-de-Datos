@@ -36,3 +36,33 @@ HAVING COUNT(i.inscripcionid) >
     JOIN inscripcion i2
     ON(oc2.cursoid = i2.cursoid AND oc2.periodoid = i2.periodoid AND oc2.versionid = i2.versionid))
 ORDER BY 2 DESC;
+
+
+
+
+SELECT c.nombre||', '||n.descripcion AS "Curso",
+TRUNC(i.periodoid /10) AS "Año Curso",
+SUBSTR(i.periodoid,5) AS "Semestre Curso",
+CASE oc.versionid WHEN
+    'V001' THEN 'PRIMERA'
+    WHEN
+    'V002' THEN 'SEGUNDA'
+    WHEN
+    'V003' THEN 'TERCERA'
+    END "Version",
+p.nombre||' '||p.apaterno||' '||p.amaterno AS "Nombre Completo",
+i.notafinal AS "Nota Final",
+CASE i.situacion WHEN
+    'R' THEN 'REPROBADO'
+    WHEN
+    'A' THEN 'APROBADO'
+    END "Situacion"
+FROM participante p JOIN inscripcion i
+    ON(p.participanteid = i.participanteid)
+    JOIN oferta_curso oc 
+    ON(i.periodoid = oc.periodoid AND i.cursoid = oc.cursoid AND i.versionid = oc.versionid)
+    JOIN curso c
+    ON(oc.cursoid = c.cursoid)
+    JOIN nivel n
+    ON(c.nivelid = n.nivelid)
+ORDER BY c.cursoid, i.periodoid, oc.versionid;

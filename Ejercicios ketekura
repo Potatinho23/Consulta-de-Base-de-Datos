@@ -1,0 +1,102 @@
+------------------------------------------------------------- CASO 1 CON JOIN-------------------------------------------------------------
+SELECT 
+    u.nombre AS "NOMBRE",
+    COUNT(m.med_run) AS "TOTAL MEDICOS",
+    TRIM(TO_CHAR(AVG(m.sueldo_base), '$999g999g999')) AS "PROMEDIO SUELDO"
+FROM
+    unidad u JOIN medico m ON(u.uni_id = m.uni_id)
+HAVING 
+    COUNT(m.med_run) >= &TOTAL
+GROUP BY
+    u.nombre;
+
+----------------------------------------------------------- CASO 1 CON SUBCONSULTA-------------------------------------------------------------
+
+SELECT
+    nombre AS "NOMBRE",
+    CANTIDAD,
+    "SUELDO PROMEDIO"
+FROM 
+    unidad OUTER APPLY(SELECT
+        COUNT(med_run) AS "CANTIDAD", 
+        TRIM(TO_CHAR(AVG(sueldo_base), '$999g999g999')) AS "SUELDO PROMEDIO"
+    FROM
+        medico 
+    WHERE
+        unidad.uni_id = uni_id)
+WHERE
+    CANTIDAD >= &TOTAL
+ORDER BY 
+    2 DESC;
+
+------------------------------------------------------------- CASO 1 CON OPERADOR SET -------------------------------------------------------------
+SELECT 
+    u.nombre AS "NOMBRE",
+    COUNT(m.med_run) AS "TOTAL MEDICOS",
+    TRIM(TO_CHAR(AVG(m.sueldo_base), '$999g999g999')) AS "PROMEDIO SUELDO"
+FROM 
+    unidad u JOIN medico m ON(u.uni_id = m.uni_id)
+GROUP BY
+    u.nombre
+INTERSECT
+SELECT 
+    u.nombre AS "NOMBRE",
+    COUNT(m.med_run) AS "TOTAL MEDICOS",
+    TRIM(TO_CHAR(AVG(m.sueldo_base), '$999g999g999')) AS "PROMEDIO SUELDO"
+FROM 
+    unidad u JOIN medico m ON(u.uni_id = m.uni_id)
+GROUP BY
+    u.nombre
+HAVING
+    COUNT(m.med_run) >= &LIMITE;
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------- CASO 2 CON JOIN -------------------------------------------------------------
+SELECT
+    e.nombre AS "NOMBRE"
+FROM 
+    especialidad e LEFT JOIN atencion a ON(e.esp_id = a.esp_id 
+    AND EXTRACT(YEAR FROM a.fecha_atencion) || EXTRACT(MONTH FROM a.fecha_atencion) IN &&FECHA) 
+HAVING 
+    COUNT(a.ate_id) = 0
+GROUP BY
+    e.nombre;
+-- CASO 2 CON SUBCONSULTAS.
+SELECT
+    e.nombre AS "NOMBRE"
+FROM 
+    especialidad e LEFT JOIN atencion a ON(e.esp_id = a.esp_id) 
+WHERE
+    e.nombre NOT IN (
+    SELECT 
+        ee.nombre
+    FROM
+       especialidad ee LEFT JOIN atencion aa ON (ee.esp_id = aa.esp_id) 
+    WHERE  
+        EXTRACT(YEAR FROM aa.fecha_atencion) || EXTRACT(MONTH FROM aa.fecha_atencion) IN &&FECHA
+    HAVING 
+        COUNT(aa.ate_id) > 0 
+    GROUP BY
+        ee.nombre)
+GROUP BY
+    e.nombre;
+------------------------------------------------------------- CASO 2 CON OPERADOR SET-------------------------------------------------------------
+SELECT
+    e.nombre AS "NOMBRE"
+FROM 
+    especialidad e LEFT JOIN atencion a ON(e.esp_id = a.esp_id)
+GROUP BY
+    e.nombre
+MINUS
+SELECT
+    e.nombre AS "NOMBRE"
+FROM 
+    especialidad e LEFT JOIN atencion a ON(e.esp_id = a.esp_id)
+WHERE
+    EXTRACT(MONTH FROM a.fecha_atencion) IN 6
+    AND
+    EXTRACT(YEAR FROM a.fecha_atencion) IN 2021
+HAVING 
+    COUNT(a.ate_id) > 0
+GROUP BY
+    e.nombre;

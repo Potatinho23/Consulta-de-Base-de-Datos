@@ -1,0 +1,62 @@
+SELECT 
+    df.numfactura AS "Num factura",
+    TO_CHAR(SUBSTR(f.rutcliente,0,LENGTH(f.rutcliente)-2),'99g999g999')||'-'||SUBSTR(f.rutcliente,-1,1) AS "Rut",
+    TO_CHAR(f.fecha, 'dd fmmonth YYYY')"Fecha Venta",
+    SUM(df.cantidad) AS "Total de productos vendidos",
+    (SELECT COUNT(df2.codproducto)
+        FROM producto p JOIN detalle_factura df2
+            ON(p.codproducto = df2.codproducto)
+        WHERE p.procedencia = 'I' AND df2.numfactura = df.numfactura) AS "Cant. Prod. Int",
+    SUM(df.cantidad)/COUNT(df.numfactura) AS "Promedio Total(Cantidad)"
+FROM detalle_factura df JOIN factura f
+    ON(df.numfactura = f.numfactura)
+HAVING SUM(df.cantidad) < 10
+GROUP BY df.numfactura, f.rutcliente, f.fecha;
+
+
+
+DELETE detalle_pago_factura;
+INSERT INTO detalle_pago_factura
+SELECT 
+    EXTRACT(YEAR FROM SYSDATE) AS "Año",
+    TO_CHAR(f.fecha, 'Month') AS "Mes" ,
+    NVL(b.descripcion, 'EFECTIVO')AS"Banco",
+    SUM(f.total)AS "Total"
+FROM factura f LEFT JOIN banco b
+    ON(f.codbanco = b.codbanco)
+WHERE EXTRACT(YEAR FROM f.fecha) = EXTRACT(YEAR FROM SYSDATE)
+GROUP BY EXTRACT(YEAR FROM SYSDATE), TO_CHAR(f.fecha, 'Month'), b.descripcion
+ORDER BY 2,3
+
+
+
+SELECT 
+    EXTRACT(YEAR FROM SYSDATE) AS "Año",
+    TO_CHAR(f.fecha, 'Month') AS "Mes" ,
+    NVL(b.descripcion, 'EFECTIVO')AS"Banco",
+    SUM(f.total)AS "Total"
+FROM factura f JOIN banco b
+    ON(f.codbanco = b.codbanco)
+WHERE EXTRACT(YEAR FROM f.fecha) = EXTRACT(YEAR FROM SYSDATE)
+GROUP BY EXTRACT(YEAR FROM SYSDATE), TO_CHAR(f.fecha, 'Month'), b.descripcion
+UNION
+SELECT 
+    EXTRACT(YEAR FROM SYSDATE) AS "Año",
+    TO_CHAR(f.fecha, 'Month') AS "Mes" ,
+   'EFECTIVO'AS"Banco",
+    SUM(f.total)AS "Total"
+FROM factura f 
+WHERE EXTRACT(YEAR FROM f.fecha) = EXTRACT(YEAR FROM SYSDATE)
+AND f.codbanco IS NULL
+GROUP BY EXTRACT(YEAR FROM SYSDATE), TO_CHAR(f.fecha, 'Month')
+
+
+
+
+
+
+UPDATE banco b
+SET b.monto_anual_aprox = (SELECT 
+                            AVG(dpf.total)
+                            FROM detalle_pago_factura dpf
+                            WHERE dpf.nom_banco = b.descripcion) * 12

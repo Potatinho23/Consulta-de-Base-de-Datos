@@ -1,0 +1,46 @@
+--ASIGNAR PRIVILEGIOS PARA CREAR VISTAS Y SINONIMOS
+GRANT CREATE VIEW TO Matias;
+
+GRANT CREATE SYNONYM TO Matias;
+
+--creacion de la fotocopia de employees
+CREATE TABLE empleado AS 
+    (SELECT e.employee_id,
+    e.last_name,
+    e.salary
+    FROM employees e);
+
+------------------------------------------------------------------------------------------------------------    
+--creacion de vista empleado
+CREATE OR REPLACE VIEW v_empleado
+AS SELECT employee_id,
+    last_name,
+    salary
+    FROM employees ;
+
+------------------------------------------------------------------------------------------------------------
+--query de la vista empleado
+SELECT *
+FROM v_empleado;
+
+------------------------------------------------------------------------------------------------------------
+--UPDATE del empleado 200
+UPDATE employees
+SET salary = 10000
+WHERE employee_id = 200;
+
+------------------------------------------------------------------------------------------------------------
+
+--DESCRIPCION DE UNA TABLA
+DESC v_empleado;
+
+------------------------------------------------------------------------------------------------------------
+
+--CREAR SINONIMOS
+CREATE SYNONYM PE_PERREA_KTM
+FOR departments;
+
+------------------------------------------------------------------------------------------------------------
+
+SELECT *
+FROM PE_PERREA_KTM;

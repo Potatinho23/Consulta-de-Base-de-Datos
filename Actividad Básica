@@ -1,0 +1,75 @@
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- USER SQL
+CREATE USER Arturo IDENTIFIED BY Chile
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER Arturo QUOTA UNLIMITED ON USERS;
+
+-- ROLES
+GRANT CREATE SESSION TO Arturo ;
+GRANT CREATE TABLE TO Arturo;
+GRANT CREATE SEQUENCE TO Arturo;
+GRANT CREATE VIEW TO Arturo;
+GRANT CREATE PUBLIC SYNONYM TO Arturo;
+
+
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- USER SQL
+CREATE USER JOAQUIN IDENTIFIED BY Ecuador
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER JOAQUIN QUOTA UNLIMITED ON USERS;
+
+-- ROLES
+GRANT CREATE SESSION TO JOAQUIN ;
+GRANT SELECT ON Arturo.v_estudiante TO JOAQUIN;
+GRANT SELECT ON s_estudiante TO JOAQUIN;
+
+---------------------------------------------------------------------------------------------------------------------
+CREATE TABLE Estudiante(
+    id number PRIMARY KEY,
+    Nombre VARCHAR2(40),
+    Nota_Final NUMBER(5,2));
+    
+
+CREATE SEQUENCE seq_estudiante
+INCREMENT BY 5
+START WITH 100;
+
+INSERT INTO estudiante(id, Nombre, Nota_Final)
+VALUES(seq_estudiante.NEXTVAL, 'Pablo Opazo', 5.3);
+
+INSERT INTO estudiante(id, Nombre, Nota_Final)
+VALUES(seq_estudiante.NEXTVAL, 'Samo el Rey es', 6.9);
+
+INSERT INTO estudiante(id, Nombre, Nota_Final)
+VALUES(seq_estudiante.NEXTVAL, 'Matias Amimir', 4.1);
+
+INSERT INTO estudiante(id, Nombre, Nota_Final)
+VALUES(seq_estudiante.NEXTVAL, 'Angelo Lopex', 5.6);
+
+--CREAR VISTA 
+
+CREATE VIEW v_estudiante AS 
+SELECT 
+    id,
+    nombre
+FROM estudiante;
+
+--CREAR SINONIMO
+CREATE PUBLIC SYNONYM s_estudiante 
+FOR v_estudiante;
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+--VER DATOS POR VISTA
+SELECT *
+FROM ARTURO.v_estudiante;
+
+--VER DATOS POR SINONIMO
+
+SELECT *
+FROM s_estudiante;

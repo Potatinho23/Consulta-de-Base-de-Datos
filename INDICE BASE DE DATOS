@@ -1,0 +1,34 @@
+SELECT e.numrut_emp || '-' || e.dvrut_emp "RUT EMPLEADO",
+       e.nombre_emp || ' ' || e.appaterno_emp || ' ' || 
+       e.apmaterno_emp "NOMBRE EMPLEADO",
+       TO_CHAR(e.sueldo_emp, '999G999G999') sueldo,
+       COUNT(p.nro_propiedad) "PROPIEDADES A SU CARGO"
+FROM empleado e JOIN propiedad p
+  ON (e.numrut_emp = p.numrut_emp)
+WHERE e.id_categoria_emp = 3
+GROUP BY e.numrut_emp, e.dvrut_emp, e.nombre_emp, e.appaterno_emp,
+         e.apmaterno_emp, e.sueldo_emp
+ORDER BY e.appaterno_emp;
+
+
+--CREAR INDICE ANASHE
+CREATE INDEX idx_categoria_emp ON empleado(id_categoria_emp); 
+
+
+
+
+
+SELECT e.numrut_emp || '-' || e.dvrut_emp "RUT EMPLEADO",
+             e.nombre_emp || ' ' || e.appaterno_emp || ' ' || e.apmaterno_emp "NOMBRE EMPLEADO",
+            TO_CHAR(e.sueldo_emp, '999G999G999') sueldo,
+             COUNT(p.nro_propiedad) "PROPIEDADES A SU CARGO"
+FROM empleado e JOIN propiedad p
+    ON e.numrut_emp=p.numrut_emp
+WHERE LOWER(SUBSTR(appaterno_emp,1,1)) = '&v_letra'
+GROUP BY e.numrut_emp, e.dvrut_emp, e.nombre_emp, 
+                   e.appaterno_emp, e.apmaterno_emp, e.sueldo_emp
+ORDER BY e.appaterno_emp;
+
+
+--CREAR INDICE(NO LLEVA ALIAS IJO E LA LOKAA)
+CREATE INDEX idx_apellido_anashe ON empleado(LOWER(SUBSTR(appaterno_emp,1,1)));

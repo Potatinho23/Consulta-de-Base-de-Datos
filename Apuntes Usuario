@@ -1,0 +1,18 @@
+La vista nos permite ver los datos 
+------------------------------------------------------------------------------------------------------------------------------
+Vista materializada: mantiene una base pre cargada
+Vista normal: se ejecuta al momento de llamarla
+------------------------------------------------------------------------------------------------------------------------------
+Para crear vistas necesitamos permisos 
+GRANT CREATE VIEW TO (Usuario);
+------------------------------------------------------------------------------------------------------------------------------
+SINONIMO: seudónimo para proteger los objetos
+Sinónimo privado: Solo visible en el esquema que se creo
+GRANT CREATE SYNONYM TO (Usuario);
+Sinónimo público: es visible desde cualquier lugar
+GRANT CREATE PUBLIC SYNONYM TO (Usuario);
+------------------------------------------------------------------------------------------------------------------------------
+Seguir principio del menor privilegio para 
+ROLES
+Grupos de privilegios asignados a un rol
+------------------------------------------------------------------------------------------------------------------------------

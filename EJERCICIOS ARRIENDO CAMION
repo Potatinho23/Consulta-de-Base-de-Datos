@@ -1,0 +1,41 @@
+--OBLIGATORIO PONER CREATE VIEW PARA CREAR UNA VISTA
+CREATE OR REPLACE VIEW v_arriendo
+AS
+    SELECT 
+        c.appaterno_cli||' '||c.apmaterno_cli||' '||c.pnombre_cli AS "Nombre Completo",
+        co.nombre_comuna AS "Comuna",
+        COUNT(ca.id_arriendo) AS "Total Arriendo"
+    FROM syn_cliente c LEFT JOIN syn_camion ca
+        ON(c.numrun_cli = ca.numrun_cli)
+        JOIN US_UNO.syn_comuna co 
+        ON(c.id_comuna = co.id_comuna) 
+    GROUP BY c.appaterno_cli,c.apmaterno_cli,c.pnombre_cli, co.nombre_comuna
+    ORDER BY 3 DESC, 1 ASC
+    
+--el with read only es solo para que sea unas vistas de lectura
+WITH READ ONLY;
+
+
+
+
+--SEGUNDA ALTERNATIVA PARA CASO 2
+
+SELECT 
+    c.appaterno_cli||' '||c.apmaterno_cli||' '||c.pnombre_cli AS "Nombre Completo",
+    co.nombre_comuna AS "Comuna",
+    COUNT(ca.id_arriendo) AS "Total Arriendo"
+FROM syn_cliente c  JOIN syn_camion ca
+    ON(c.numrun_cli = ca.numrun_cli)
+    JOIN US_UNO.syn_comuna co 
+    ON(c.id_comuna = co.id_comuna) 
+GROUP BY c.appaterno_cli,c.apmaterno_cli,c.pnombre_cli, co.nombre_comuna
+UNION
+SELECT 
+    c1.appaterno_cli||' '||c1.apmaterno_cli||' '||c1.pnombre_cli AS "Nombre Completo",
+    co1.nombre_comuna AS "Comuna",
+    0
+FROM syn_cliente c1 JOIN US_UNO.syn_comuna co1 
+    ON(c1.id_comuna = co1.id_comuna)
+WHERE c1.numrun_cli NOT IN (SELECT numrun_cli
+                            FROM syn_camion )
+ORDER BY 3 DESC, 1 ASC

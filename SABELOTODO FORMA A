@@ -1,0 +1,103 @@
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- USER SQL
+CREATE USER MDY2131_P3_1 IDENTIFIED BY MDY2131_P3_1
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER MDY2131_P3_1 QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION TO MDY2131_P3_1;
+
+GRANT CREATE TABLE To MDY2131_P3_1;
+GRANT CREATE SEQUENCE TO MDY2131_P3_1;
+GRANT CREATE ANY INDEX TO MDY2131_P3_1;
+
+
+CREATE USER MDY2131_P3_2 IDENTIFIED BY MDY2131_P3_2
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER MDY2131_P3_2 QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION TO MDY2131_P3_2;
+GRANT CREATE PROCEDURE TO MDY2131_P3_2;
+GRANT CREATE TRIGGER TO MDY2131_P3_2;
+GRANT CREATE VIEW TO MDY2131_P3_2;
+GRANT CREATE MATERIALIZED VIEW TO MDY2131_P3_2;
+
+--CREAR SINONIMOS
+GRANT CREATE SYNONYM TO MDY2131_P3_1;
+GRANT CREATE PUBLIC SYNONYM TO MDY2131_P3_1;
+--sinonimos publicos
+GRANT SELECT ON syn_oferta_curso TO MDY2131_P3_2;
+GRANT SELECT ON syn_curso TO MDY2131_P3_2;
+GRANT SELECT ON syn_relator TO MDY2131_P3_2;
+--sinonimos privados
+GRANT SELECT ON MDY2131_P3_1.syn_nivel TO MDY2131_P3_2;
+GRANT SELECT ON MDY2131_P3_1.syn_area TO MDY2131_P3_2;
+GRANT SELECT ON MDY2131_P3_1.syn_empresa TO MDY2131_P3_2;
+GRANT SELECT ON MDY2131_P3_1.syn_participante TO MDY2131_P3_2;
+GRANT SELECT ON MDY2131_P3_1.syn_inscripcion TO MDY2131_P3_2;
+
+--permiso para modificar (CRUD)
+GRANT UPDATE ON syn_oferta_curso TO MDY2131_P3_2;
+GRANT DELETE ON syn_oferta_curso TO MDY2131_P3_2;
+GRANT INSERT ON syn_oferta_curso TO MDY2131_P3_2;
+--permiso para modificar (CRUD)
+
+GRANT UPDATE ON syn_curso TO MDY2131_P3_2;
+GRANT DELETE ON syn_curso TO MDY2131_P3_2;
+GRANT INSERT ON syn_curso TO MDY2131_P3_2;
+
+--permiso para modificar (CRUD)
+GRANT UPDATE ON syn_relator TO MDY2131_P3_2;
+GRANT DELETE ON syn_relator TO MDY2131_P3_2;
+GRANT INSERT ON syn_relator TO MDY2131_P3_2;
+
+--CREAR ROL
+CREATE ROLE rol_consultor;
+--DARLE PERMISOS AL ROL
+GRANT SELECT ON syn_oferta_curso TO rol_consultor;
+GRANT SELECT ON syn_curso TO rol_consultor;
+GRANT SELECT ON MDY2131_P3_1.syn_nivel TO rol_consultor;
+
+
+--CREAR USUARIO PARA USAR EL ROL ANASHEI
+CREATE USER USU_CONSULTOR IDENTIFIED BY USU_CONSULTOR
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER USU_CONSULTOR QUOTA UNLIMITED ON USERS;
+
+--ASIGNAR ROL A USUARIO
+GRANT rol_consultor TO USU_CONSULTOR;
+ALTER USER USU_CONSULTOR DEFAULT ROLE "ROL_CONSULTOR";
+
+-----------------------------------------------------------------------------------------
+--usuario 1
+CREATE PUBLIC SYNONYM syn_oferta_curso FOR oferta_curso;
+CREATE PUBLIC SYNONYM syn_curso FOR curso;
+CREATE PUBLIC SYNONYM syn_relator FOR relator;
+--sinonimos privados Anashe
+CREATE SYNONYM syn_area FOR area;
+CREATE SYNONYM syn_empresa FOR empresa;
+CREATE SYNONYM syn_participante FOR participante;
+CREATE SYNONYM syn_inscripcion FOR inscripcion;
+CREATE SYNONYM syn_nivel FOR nivel;
+
+-----------------------------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW v_vistaanashe
+AS
+SELECT 
+    r.nombre||' '||r.apaterno||' '||r.amaterno AS "Nombre",
+    TO_CHAR(r.valorhr, '$999g999g999') AS "Valor_Hora",
+    c.nombre AS "Curso",
+    COUNT(r.relatorid) AS "Cantidad"
+FROM syn_oferta_curso oc JOIN syn_relator r
+    ON(oc.relatorid = r.relatorid)
+    JOIN syn_curso c
+    ON(c.cursoid = oc.cursoid) 
+GROUP BY r.nombre,r.apaterno,r.amaterno, TO_CHAR(r.valorhr, '$999g999g999'), c.nombre
+ORDER BY 4 DESC, r.apaterno ASC, 3 ASC;

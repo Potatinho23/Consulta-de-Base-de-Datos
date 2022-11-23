@@ -1,0 +1,133 @@
+--MASTER
+--Usuario 1
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- USER SQL
+CREATE USER USUARIO_P3_1 IDENTIFIED BY USUARIO_P3_1
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER USUARIO_P3_1 QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION TO USUARIO_P3_1;
+GRANT CREATE TABLE TO USUARIO_P3_1;
+GRANT CREATE SYNONYM TO USUARIO_P3_1;
+GRANT CREATE PUBLIC SYNONYM TO USUARIO_P3_1;
+GRANT CREATE ANY INDEX TO USUARIO_P3_1;
+
+
+
+--Usuario 2
+CREATE USER USUARIO_P3_2 IDENTIFIED BY USUARIO_P3_2
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER USUARIO_P3_2 QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION TO USUARIO_P3_2;
+GRANT CREATE PROCEDURE TO USUARIO_P3_2;
+GRANT CREATE SEQUENCE TO USUARIO_P3_2;
+GRANT CREATE VIEW TO USUARIO_P3_2;
+GRANT CREATE MATERIALIZED VIEW TO USUARIO_P3_2;
+
+--PERMISOS PARA CONSULTAR
+GRANT SELECT ON syn_ciudad TO USUARIO_P3_2;
+GRANT SELECT ON syn_comuna TO USUARIO_P3_2;
+GRANT SELECT ON USUARIO_P3_1.syn_factura TO USUARIO_P3_2;
+GRANT SELECT ON USUARIO_P3_1.syn_vendedor TO USUARIO_P3_2;
+
+--CREAR ROL
+CREATE ROLE rol_TI;
+--permisos para el rol 
+GRANT UPDATE ON USUARIO_P3_1.syn_vendedor TO rol_TI;
+GRANT DELETE ON USUARIO_P3_1.syn_vendedor TO rol_TI;
+GRANT INSERT ON USUARIO_P3_1.syn_vendedor TO rol_TI;
+
+
+--ASIGNAR ROL A USUARIO
+
+GRANT rol_TI TO USUARIO_P3_2;
+ALTER USER USUARIO_P3_2 DEFAULT ROLE "ROL_TI";
+------------------------------------------------------------------------------------------------------------------
+--BD USUARIO 1
+--CREAR SINONIMOS PUBLICOS
+CREATE PUBLIC SYNONYM syn_ciudad FOR ciudad;
+CREATE PUBLIC SYNONYM syn_comuna FOR comuna;
+
+--CREAR SINONIMOS PRIVADOS
+CREATE SYNONYM syn_factura FOR factura;
+CREATE SYNONYM syn_vendedor FOR vendedor;
+
+
+--CREACION DE INDICE
+
+SELECT 
+    b.numboleta "NRO BOLETA",
+    TO_CHAR(b.fecha, 'MM/YYYY') "Mes/AÑOS VENTA",
+    INITCAP(fp.descripcion) "FORMA De PAGO"
+FROM boleta b JOIN forma_pago fp
+    ON(b.codpago = fp.codpago)
+WHERE TO_CHAR(b.fecha, 'MM/YYYY') = '02/2022'
+ORDER BY 3;
+
+
+
+
+CREATE INDEX idx_boleta ON boleta(TO_CHAR(fecha,'MM/YYYY'));
+
+
+
+--CREACION DE INDICE 2
+
+
+SELECT 
+    db.numboleta "NRO BOLETA",
+    db.cantidad "CANTIDAD",
+    INITCAP(p.descripcion) "Nombre producto",
+    TO_CHAR(p.vunitario, '$999g999g999') "Valor Unitario",
+    TO_CHAR(db.totallinea, '$999g999g999') "SUBTOTAL"
+FROM detalle_boleta db JOIN producto p
+    ON(db.codproducto = p.codproducto)
+    JOIN boleta b
+    ON(db.numboleta =b.numboleta)
+WHERE b.codbanco = 1
+ANd b.total <200000;
+
+CREATE INDEX idx_boletaDOS ON boleta(codbanco,total);
+
+------------------------------------------------------------------------------------------------------------------
+
+--BD USUARIO 2
+--SOLUCION 1
+CREATE OR REPLACE VIEW v_vistaINSANA 
+AS
+    SELECT 
+        v.rutvendedor AS "RUT_VENDEDOR",
+        v.nombre AS "Nombre_VENDEDOR",
+        v.direccion||', '||c.descripcion||', '||ci.descripcion AS "Direccion",
+        v.mail AS "Email", 
+        LPAD(TRIM(TO_CHAR(SUM(f.total),'$999g999g999')),15,'*') AS "Total"
+    FROM USUARIO_P3_1.syn_vendedor v JOIN syn_comuna c
+        ON(v.codcomuna = c.codcomuna)
+        JOIN USUARIO_P3_1.factura f
+        ON(v.rutvendedor = f.rutvendedor)
+        JOIN syn_ciudad ci
+        ON(c.codciudad = ci.codciudad)
+    WHERE f.codpago = 1 
+    GROUP BY v.rutvendedor, v.nombre, v.direccion,c.descripcion,ci.descripcion, v.mail
+    ORDER BY c.descripcion ASC, 5 DESC;
+
+
+
+
+/*
+PREGUNTA 1
+-Se necesita saber la informacion de los vendedores y la cantidad total recaudada por cada vendedor realizadas por facturas en efectivo
+
+PREGUNTA 2
+-Primero se visualiza de donde se extraeran los datos para luego seleccionarlos, despues, se realiza una condicion para el metodo de pago que sera
+en efectivo y por ultimo una funcion de grupo para sumar el total recaudadod por cada vendedor
+
+PREGUNTA 3
+-La solucion 1 es bastante segura ya que el usuario solo tienen acceso a la vista creada por lo tanto no podra acceder a nada mas que esos datos
+*/
+

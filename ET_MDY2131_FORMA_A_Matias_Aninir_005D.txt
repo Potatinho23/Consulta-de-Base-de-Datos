@@ -1,0 +1,141 @@
+--MASTER
+
+--USUARIO 1
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- USER SQL
+CREATE USER MDY2131_ET_FA IDENTIFIED BY MDY2131_ET_fa
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER MDY2131_ET_FA QUOTA UNLIMITED ON USERS;
+
+-- PERMISOS USUARIO 1
+
+GRANT CREATE SESSION TO MDY2131_ET_FA;
+GRANT CREATE TABLE TO MDY2131_ET_FA;
+GRANT CREATE SEQUENCE TO MDY2131_ET_FA;
+GRANT CREATE ANY INDEX TO MDY2131_ET_FA;
+GRANT CREATE SYNONYM TO MDY2131_ET_FA;
+GRANT CREATE PUBLIC SYNONYM TO MDY2131_ET_FA;
+
+--USUARIO 2
+
+CREATE USER MDY2131_ET_FA_DES IDENTIFIED BY MDY2131_ET_fa_des
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER MDY2131_ET_FA_DES QUOTA UNLIMITED ON USERS;
+
+--PERMISOS USUARIO 2
+
+GRANT CREATE SESSION TO MDY2131_ET_FA_DES;
+GRANT CREATE PROCEDURE TO MDY2131_ET_FA_DES;
+GRANT CREATE TRIGGER TO MDY2131_ET_FA_DES;
+GRANT CREATE VIEW TO MDY2131_ET_FA_DES;
+GRANT CREATE MATERIALIZED VIEW TO MDY2131_ET_FA_DES;
+
+--USUARIO 3
+
+CREATE USER MDY2131_ET_FA_CON IDENTIFIED BY MDY2131_ET_fa_con
+DEFAULT TABLESPACE "USERS"
+TEMPORARY TABLESPACE "TEMP";
+
+-- QUOTAS
+ALTER USER MDY2131_ET_FA_CON QUOTA UNLIMITED ON USERS;
+
+--PERMISOS USUARIO 3
+
+GRANT CREATE SESSION TO MDY2131_ET_FA_CON;
+GRANT SELECT ON MDY2131_ET_FA.syn_seleccion_especialidad TO MDY2131_ET_FA_CON;
+
+--ROL
+CREATE ROLE rol_acceso;
+--permisos para el rol 
+GRANT SELECT ON syn_medico TO rol_acceso;
+GRANT SELECT ON syn_atencion TO rol_acceso;
+GRANT SELECT ON syn_especialidad TO rol_acceso;
+
+
+--ASIGNAR ROL A USUARIO 2
+
+GRANT rol_acceso TO MDY2131_ET_FA_DES;
+ALTER USER MDY2131_ET_FA_DES DEFAULT ROLE "ROL_ACCESO";
+
+--ASIGNAR ROL A USUARIO 3
+
+GRANT rol_acceso TO MDY2131_ET_FA_CON;
+ALTER USER MDY2131_ET_FA_CON DEFAULT ROLE "ROL_ACCESO";
+-----------------------------------------------------------------------------------------------------------------------
+--USUARIO 1
+--SINONIMOS PUBLICOS 
+CREATE PUBLIC SYNONYM syn_medico FOR medico;
+CREATE PUBLIC SYNONYM syn_atencion FOR atencion;
+CREATE PUBLIC SYNONYM syn_especialidad FOR especialidad;
+--SINONIMOS PRIVADOS
+CREATE SYNONYM syn_seleccion_especialidad FOR seleccion_especialidad;
+
+--INDICE
+CREATE INDEX IDX_ATENCION ON atencion(TO_CHAR(fecha_atencion,'MM/YYY')>=TO_CHAR(SYSDATE -150,'MM/YYYY'));
+
+CREATE INDEX IDX_MED_ESPECIALIDAD ON medico(TO_CHAR(fecha_atencion,'MM/YYY')>=TO_CHAR(SYSDATE -150,'MM/YYYY'));
+
+
+
+-----------------------------------------------------------------------------------------------------------------------
+--USUARIO 2
+--INFORME 1
+CREATE OR REPLACE VIEW v_vista_INFORME1
+AS
+    SELECT 
+        e.nombre AS"Nombre_Especialidad",
+        COUNT(DISTINCT(a.med_run)) "Cantidad_Medicos",
+        COUNT(a.ate_id) "Cantidad_Atenciones",
+        TO_CHAR(SUM(a.costo),'$999g999g999')"Costo_Total",
+        TO_CHAR(AVG(a.costo),'$999g999g999')AS"Costo_Promedio"
+    FROM syn_especialidad e JOIN syn_medico m
+        ON(e.esp_id = m.esp_id)
+        JOIN syn_atencion a
+        ON(m.med_run = a.med_run)
+        WHERE TO_CHAR(a.fecha_atencion,'MM/YYY')>=TO_CHAR(SYSDATE -150,'MM/YYYY')
+    GROUP BY e.nombre
+    ORDER BY 3 DESC;
+-----------------------------------------------------------------------------------------------------------------------
+--USUARIO 3
+--Informe 2
+DELETE MDY2131_ET_FA.seleccion_especialidad;
+INSERT INTO MDY2131_ET_FA.seleccion_especialidad
+    SELECT
+        TO_CHAR(SYSDATE,'DD/MM/YYYY')"Fecha_Emision",
+        e.esp_id "Identificador Especialidad",
+        e.nombre "Nombre Especialidad",
+        TO_CHAR(AVG(m.sueldo_base),'$999g999g999')AS "Promedio Sueldo",
+        COUNT(DISTINCT(m.med_run))AS "Cantidad Medicos"
+    FROM syn_atencion a JOIN syn_medico m
+        ON(a.med_run = m.med_run)
+        JOIN syn_especialidad e
+        ON(e.esp_id = m.esp_id)
+    WHERE TO_CHAR(a.fecha_atencion,'DD/MM/YYY')>=TO_CHAR(SYSDATE -60,'DD/MM/YYYY') AND e.esp_id >= 30
+    GROUP BY e.esp_id, TO_CHAR(SYSDATE,'DD/MM/YYYY'), e.nombre
+    ORDER BY 3 ASC;
+
+/*RESPUESTAS
+
+1)Se debe generar un informe en el cual se inserten datos en la tabla seleccion_especialidad, donde se mostrara la fecha de emision,
+el id de la especialida, nombre de la especialidad, el sueldo promedio de los medicos y el total de medicos por especialidad.
+Despues, en la tabla la cual se insertaron datos se debe actualizar el descuento y aumentarle un 2%.
+
+2)Se necesita saber que datos se insertaran en la tabla para poder seleccionar correctamente cada dato.
+
+3)El propósito es poder insertar datos en la tabla para luego actualizarlos
+
+4)Para la alternativa con subconsulta se necesita obtener la informacion de los sinonimos publicos creados como lo son: syn_medico, syn_especialidad
+y syn_atencion, luego se selecciona la fecha de emision que se obtiene con el SYSDATE, luego seleccionamos el id de la especialidad, despues, el nombre 
+de la especialidad, posteriormente, sacamos el promedio del sueldo de los medicos y por ultimo, se realiza un count y un distinct para sacar el total
+de medicos, para finalizar, realizamos las funciones de grupo, restricciones que nos piden y lo ordenamos de acuerdo al nombre de le especialidad.
+
+5)Para la alternativa con subconsulta se necesita obtener la informacion de los sinonimos publicos creados como lo son: syn_medico, syn_especialidad
+y syn_atencion, luego se selecciona la fecha de emision que se obtiene con el SYSDATE, luego seleccionamos el id de la especialidad, despues, el nombre 
+de la especialidad, posteriormente, sacamos el promedio del sueldo de los medicos y por ultimo, se realiza... 
+
